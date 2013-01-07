@@ -20,6 +20,11 @@ import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Properties;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -36,8 +41,13 @@ import com.jgoodies.forms.layout.RowSpec;
 
 public class MainWindow extends JFrame {
 	private static final long serialVersionUID = 1L;
+
+	private static final String PROPERTY_SOURCE = "sourcefile";
+	private static final String PROPERTY_DESTINATION = "destinationfile";
+
 	private JTextField sourceField;
 	private JTextField destinationField;
+	private JLabel progressLabel;
 
 	/**
 	 * Launch the application.
@@ -49,7 +59,7 @@ public class MainWindow extends JFrame {
 					MainWindow frame = new MainWindow();
 					frame.setVisible(true);
 				} catch (Exception e) {
-					e.printStackTrace();
+					throw new RuntimeException(e);
 				}
 			}
 		});
@@ -58,7 +68,14 @@ public class MainWindow extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public MainWindow() {
+	public MainWindow() throws FileNotFoundException, IOException {
+		final File configFile = new File(System.getProperty("user.home"), ".jsonformatter");
+
+		final Properties properties = new Properties();
+		if (configFile.exists()) {
+			properties.load(new FileReader(configFile));
+		}
+
 		setBounds(100, 100, 603, 255);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		getContentPane().setLayout(new FormLayout(new ColumnSpec[] {
@@ -74,12 +91,14 @@ public class MainWindow extends JFrame {
 				FormFactory.RELATED_GAP_ROWSPEC,
 				FormFactory.DEFAULT_ROWSPEC,
 				FormFactory.GLUE_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
 				FormFactory.DEFAULT_ROWSPEC,}));
 
 		JLabel lblSourceJson = new JLabel("Source JSON");
 		getContentPane().add(lblSourceJson, "2, 2, right, default");
 
-		sourceField = new JTextField();
+		sourceField = new JTextField(properties.getProperty(PROPERTY_SOURCE));
 		getContentPane().add(sourceField, "4, 2, fill, default");
 		sourceField.setColumns(10);
 
@@ -94,7 +113,7 @@ public class MainWindow extends JFrame {
 		JLabel lblDestinationJson = new JLabel("Destination JSON");
 		getContentPane().add(lblDestinationJson, "2, 4, right, default");
 
-		destinationField = new JTextField();
+		destinationField = new JTextField(properties.getProperty(PROPERTY_DESTINATION));
 		getContentPane().add(destinationField, "4, 4, fill, default");
 		destinationField.setColumns(10);
 
@@ -109,18 +128,34 @@ public class MainWindow extends JFrame {
 		JButton formatButton = new JButton("Format");
 		formatButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				File sourceFile = new File(sourceField.getText());
-				File destinationFile = new File(destinationField.getText());
-				try {
-					JsonFormatter.format(sourceFile, destinationFile);
-					JOptionPane.showMessageDialog(MainWindow.this, "The source file has been formatted and the content can be seen in the destination file", "File formatted!", JOptionPane.INFORMATION_MESSAGE);
-				} catch (Exception e) {
-					JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(), "An error occurred", JOptionPane.ERROR_MESSAGE);
-				}
+				progressLabel.setText("Formatting file ...");
+
+				Thread formatThread = new Thread(new Runnable() {
+					@Override
+					public void run() {
+						File sourceFile = new File(sourceField.getText());
+						File destinationFile = new File(destinationField.getText());
+						try {
+							JsonFormatter.format(sourceFile, destinationFile);
+
+							properties.setProperty(PROPERTY_SOURCE, sourceFile.getAbsolutePath());
+							properties.setProperty(PROPERTY_DESTINATION, destinationFile.getAbsolutePath());
+							properties.store(new FileWriter(configFile), null);
+							progressLabel.setText("Formatting file ...... DONE");
+						} catch (Exception e) {
+							progressLabel.setText("");
+
+							JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(), "An error occurred", JOptionPane.ERROR_MESSAGE);
+						}
+					}
+				});
+				formatThread.start();
 			}
 		});
-		getContentPane().add(formatButton, "2, 6, 5, 1");
 
+		progressLabel = new JLabel("");
+		getContentPane().add(progressLabel, "2, 6, 5, 1");
+		getContentPane().add(formatButton, "2, 8, 5, 1");
 	}
 
 	private void selectFile(JTextField field) {
