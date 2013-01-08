@@ -1,4 +1,4 @@
-JSON Formatter
+JSON Formatter [![Build Status](https://secure.travis-ci.org/frankbille/jsonformatter.png)](http://travis-ci.org/frankbille/jsonformatter)
 ==============
 
 Very simple JSON formatter, which can help in determining why a JSON file is invalid.
