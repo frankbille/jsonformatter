@@ -17,24 +17,38 @@
 package dk.frankbille.jsonformatter;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 
 public class JsonFormatter {
 
-	public static void format(File sourceFile, File destinationFile) throws Exception {
-		final StringBuilder out = new StringBuilder();
+	public static void format(File sourceFile, File destinationFile) throws IOException {
+		format(sourceFile, destinationFile, null);
+	}
 
-		final FileReader fr = new FileReader(sourceFile);
-		final BufferedReader br = new BufferedReader(fr);
+	public static void format(File sourceFile, File destinationFile, FormatProgressListener progressListener) throws IOException {
+		if (progressListener == null) {
+			progressListener = FormatProgressListener.EMPTY_LISTENER;
+		}
 
+		long total = sourceFile.length();
+
+		final FileReader r = new FileReader(sourceFile);
+		final BufferedReader reader = new BufferedReader(r);
+
+		final FileWriter w = new FileWriter(destinationFile);
+		final BufferedWriter writer = new BufferedWriter(w);
+
+		long step = 0;
 		int indent = 0;
-
 		String line = null;
-		while ((line = br.readLine()) != null) {
+		while ((line = reader.readLine()) != null) {
 			for (int p = 0; p < line.length(); p++) {
 				char c = line.charAt(p);
+				progressListener.progress(++step, total);
 
 				switch (c) {
 				case ' ':
@@ -45,34 +59,31 @@ public class JsonFormatter {
 					break;
 				case '{':
 				case '[':
-					printNewLine(indent, out);
-					out.append(c);
+					printNewLine(indent, writer);
+					writer.append(c);
 					indent++;
-					printNewLine(indent, out);
+					printNewLine(indent, writer);
 					break;
 				case '}':
 				case ']':
 					indent--;
-					printNewLine(indent, out);
-					out.append(c);
+					printNewLine(indent, writer);
+					writer.append(c);
 					break;
 				default:
-					out.append(c);
+					writer.append(c);
 					break;
 				}
 			}
 		}
 
-		br.close();
-
-		FileWriter writer = new FileWriter(destinationFile);
-		writer.write(out.toString());
+		reader.close();
 		writer.close();
 	}
 
-	private static void printNewLine(int indent, StringBuilder out) {
-		out.append('\n');
-		out.append(repeat("\t", indent));
+	private static void printNewLine(int indent, BufferedWriter writer) throws IOException {
+		writer.append('\n');
+		writer.append(repeat("\t", indent));
 	}
 
 	/**
