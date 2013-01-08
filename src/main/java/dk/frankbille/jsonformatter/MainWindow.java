@@ -101,7 +101,7 @@ public class MainWindow extends JFrame {
                 FormFactory.RELATED_GAP_ROWSPEC,
                 FormFactory.DEFAULT_ROWSPEC,}));
 
-        JLabel lblSourceJson = new JLabel("Source JSON");
+        JLabel lblSourceJson = new JLabel(Messages.getString("MainWindow.lblSourceJson.text")); //$NON-NLS-1$
         getContentPane().add(lblSourceJson, "2, 2, right, default");
 
         sourceField = new JTextField(properties.getProperty(PROPERTY_SOURCE));
@@ -116,7 +116,7 @@ public class MainWindow extends JFrame {
         });
         getContentPane().add(selectSourceButton, "6, 2");
 
-        JLabel lblDestinationJson = new JLabel("Destination JSON");
+        JLabel lblDestinationJson = new JLabel(Messages.getString("MainWindow.lblDestinationJson.text")); //$NON-NLS-1$
         getContentPane().add(lblDestinationJson, "2, 4, right, default");
 
         destinationField = new JTextField(properties.getProperty(PROPERTY_DESTINATION));
@@ -131,7 +131,7 @@ public class MainWindow extends JFrame {
         });
         getContentPane().add(selectDestinationButton, "6, 4");
 
-        formatButton = new JButton("Format");
+        formatButton = new JButton(Messages.getString("MainWindow.formatButton.text")); //$NON-NLS-1$
         formatButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
             	formatButton.setEnabled(false);
@@ -175,10 +175,10 @@ public class MainWindow extends JFrame {
         JFileChooser selectFile = new JFileChooser();
         selectFile.setMultiSelectionEnabled(false);
         selectFile.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        selectFile.setFileFilter(new FileNameExtensionFilter("JSON File", "json"));
+        selectFile.setFileFilter(new FileNameExtensionFilter(Messages.getString("SelectFile.jsonExtensionDescription"), "json"));
         File file = new File(field.getText());
         selectFile.setSelectedFile(file);
-        if (selectFile.showDialog(MainWindow.this, "Select") == JOptionPane.OK_OPTION) {
+        if (selectFile.showDialog(MainWindow.this, Messages.getString("SelectFile.buttonText")) == JOptionPane.OK_OPTION) {
             field.setText(selectFile.getSelectedFile().getAbsolutePath());
         }
     }
