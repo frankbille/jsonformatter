@@ -2,8 +2,6 @@ language: java
 script: mvn test package
 jdk:
   - openjdk6
-  - openjdk7
-  - oraclejdk7
 branches:
   only:
     - master
@@ -11,7 +9,7 @@ env:
  global:
    - "ARTIFACTS_AWS_REGION=eu-west-1"
    - "ARTIFACTS_S3_BUCKET=github-files"
-   - secure: "hskpPYcP2VjmDMjvAvv+ZuJ+prJ2DIqv87zhovHp9Gjixdc9r1TdCbF1Fs4G\nP1PlHj7CVNeyP9Kg/lApLM2b4eIJujU5/6msNnh4bc0NnxmZldTnI7GYNy0N\nYKkpUj9EGdhv/2ZV+A58KxGNFa6vnvlKbD+j+Qok9Bgfrk+VcgU="
+   - secure: "IjPoym1CpkdGKa0+cpu8dwOf1HN1cXBlW0O4eZctebeGcln3Y3mLqOurkYP1\nE1yHg9pcYdBdILxzGBTGculDjJEg6YmTDA0H8CAfHy09zcCJaKH5hdU51zqb\n5ZQxgwZAzyFJnBLFu11K/LMqXJ/f4oN21LJnhzQbUbPhaq+FEA0="
    - secure: "P/Kg+UGNHv7HAGKz8p9hK79s6fr0A+FRV2pjdOezUU3HMbk41QePpTi4qJnf\na6FwibgXkFItRkUp3mcxoc/dPM1pIweAT2UQ/DvXT5g2HJi2rEXtKmrspNUA\nJtXXDpvoatcoQH7PHbdK1IRuycrIK1xZYqGXoQ62KjRUVadf0hI="
 before_script:
    - "gem install travis-artifacts"
